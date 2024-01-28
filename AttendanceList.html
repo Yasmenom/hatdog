@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AttendanceList</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+      border: 1px solid #000;
+      cursor: pointer;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    tr:nth-child(even) {
+      background-color: #d1f0d1;
+    }
+    tr:nth-child(odd) {
+      background-color: #ffdede;
+    }
+  </style>
+</head>
+<body>
+<div id="table-container"></div>
+
+  <script>
+
+var url = 'https://docs.google.com/spreadsheets/d/1OLlq42VPlPPjv2UYd-w58NBJAmCCN9PcOnmFaAmlT9g/export?format=csv';
+var datos = '';
+var ascending = true;
+
+
+var xhr = new XMLHttpRequest();
+xhr.open('GET', url);
+xhr.onreadystatechange = function() {
+  if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+	datos = xhr.responseText;
+
+	var string = datos;
+	var rows = string.split("\n");
+	var table = document.createElement("table");
+	var ascending = false;
+
+var headerRow = document.createElement("tr");
+var headerCell1 = document.createElement("th");
+var headerCell2 = document.createElement("th");
+var headerCell3 = document.createElement("th");
+var headerCell4 = document.createElement("th");
+headerCell1.appendChild(document.createTextNode("Column 1"));
+headerCell2.appendChild(document.createTextNode("Column 2"));
+headerCell3.appendChild(document.createTextNode("Column 3"));
+headerCell4.appendChild(document.createTextNode("Column 4"));
+
+
+headerCell1.setAttribute("data-sort-type", "asc");
+headerCell2.setAttribute("data-sort-type", "asc");
+headerCell3.setAttribute("data-sort-type", "asc");
+headerCell4.setAttribute("data-sort-type", "asc");
+
+
+headerCell1.addEventListener("click", function() { sortTable(0); });
+headerCell2.addEventListener("click", function() { sortTable(1); });
+headerCell3.addEventListener("click", function() { sortTable(2); });
+headerCell4.addEventListener("click", function() { sortTable(3); });
+
+headerRow.appendChild(headerCell1);
+headerRow.appendChild(headerCell2);
+headerRow.appendChild(headerCell3);
+headerRow.appendChild(headerCell4);
+table.appendChild(headerRow);
+
+	for (var i = 0; i < rows.length; i++) {
+	  var cols = rows[i].split(",");
+	  var row = document.createElement("tr");
+	  if (i % 2 == 0) {
+		row.style.backgroundColor = "#d1f0d1";
+	  } else {
+		row.style.backgroundColor = "#ffdede";
+	  }
+	  for (var j = 0; j < cols.length; j++) {
+		var cell = document.createElement("td");
+		cell.appendChild(document.createTextNode(cols[j]));
+		row.appendChild(cell);
+	  }
+	  row.addEventListener("click", function() {
+		var rowContent = "";
+		for (var k = 0; k < this.cells.length; k++) {
+		  rowContent += this.cells[k].innerHTML + "|";
+		}
+		alert(rowContent);
+	  });
+	  
+	 
+    for (var j = 0; j < row.cells.length; j++) {
+      var cell = row.cells[j];
+      cell.textContent = cell.textContent.replace(/"/g, '');
+    }
+	  
+	  table.appendChild(row);
+	}
+
+	document.getElementById("table-container").appendChild(table);
+  }
+};
+xhr.send();
+
+function sortTable(columnIndex) {
+  var table = document.querySelector("table");
+  var rows = Array.from(table.rows).slice(1); 
+  ascending = !ascending;  
+
+  rows.sort(function(rowA, rowB) {
+	var cellA = rowA.cells[columnIndex].textContent.trim();
+	var cellB = rowB.cells[columnIndex].textContent.trim();
+
+  if (cellA.localeCompare(cellB, 'es', { sensitivity: 'base' }) < 0) {
+  return ascending ? -1 : 1;
+} else if (cellA.localeCompare(cellB, 'es', { sensitivity: 'base' }) > 0) {
+  return ascending ? 1 : -1;
+} else {
+  return 0;
+}
+  });
+
+  for (var i = table.rows.length - 1; i >= 1; i--) {
+	table.deleteRow(i);
+  }
+  
+  
+  for (var i = 0; i < rows.length; i++) {
+	var row = rows[i];
+	
+	
+	if (i % 2 == 0) {
+	  row.style.backgroundColor = "#d1f0d1";
+	} else {
+	  row.style.backgroundColor = "#ffdede";
+	}
+	
+	 
+    for (var j = 0; j < row.cells.length; j++) {
+      var cell = row.cells[j];
+      cell.textContent = cell.textContent.replace(/"/g, '');
+    }
+
+	table.appendChild(row);
+  }
+}
+  </script>
+</body>
+</html>
